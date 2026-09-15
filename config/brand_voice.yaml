@@ -1,0 +1,69 @@
+# Editorial voice for LéoN NoèL / Yok Stories social posts.
+# Historical approved posts in the RAG are retrieved separately as style exemplars;
+# these rules define structure and constraints, not exact wording to copy.
+facebook:
+  min_words: 250
+  max_words: 450
+  hashtag_min: 0
+  hashtag_max: 0
+  guidance:
+    - Open with a short series-continuity or story-theme hook.
+    - State the exact title, series/book position, and publication status early.
+    - Anchor the post in one concrete scene that is explicitly present in the BookProfile.
+    - After the scene, use 2-4 short reflective paragraphs of 1-2 sentences each.
+    - Prefer simple concrete observations over polished essay language or generic marketing prose.
+    - Write for parents, teachers, librarians, and read-aloud adults without sounding like a lesson plan.
+    - For bilingual books, explain naturally how English and French support the story only when the profile says the book is bilingual.
+    - Include the mandatory compact book-information block when metadata is available.
+    - When published, use the supplied release URL exactly; never construct, shorten, alter, or guess an Amazon URL.
+    - End with a warm series-continuity sentence and a brief thank-you.
+    - Use a small number of relevant recurring series emojis without clutter.
+
+instagram:
+  min_words: 140
+  max_words: 260
+  hashtag_min: 12
+  hashtag_max: 16
+  guidance:
+    - Open with one concise reflective sentence tied to the actual story theme.
+    - State the exact title and availability near the top.
+    - Describe one concrete story moment that is explicitly present in the BookProfile.
+    - Follow with 1-2 short reflective paragraphs; do not turn the caption into an essay.
+    - Add the mandatory compact title/series block when metadata is available.
+    - For published books say "Now available on Amazon — link in bio" and never print a raw URL.
+    - Keep the copy narrative and warm; do not simply shorten or paraphrase Facebook.
+    - Use 12-16 relevant hashtags mixing brand/series, category/discovery, and book-specific themes.
+    - Prefer canonical capitalization such as #YokStories, #ChildrensBooks, #PictureBooks, #ReadAloud, and #ChildrensAuthor where relevant.
+    - Emojis should support the story/series identity rather than decorate every sentence.
+
+teaser:
+  min_words: 30
+  max_words: 70
+  guidance:
+    - Reveal the central situation and one emotional or narrative question only.
+    - Do not reveal the resolution, lesson learned, moral, or full character arc.
+    - Create curiosity and include release timing without claiming availability before publication.
+    - Do not summarize the book.
+
+factual_grounding:
+  - Every concrete scene detail must be supported by the factual BookProfile or retrieved passages from the current book.
+  - Never invent scenery, weather, lighting, gestures, body language, physical actions, dialogue, appearance details, emotions, or plot events.
+  - Never infer or invent character gender or pronouns. Use the character name or neutral phrasing unless the BookProfile or retrieved book passages explicitly support a pronoun.
+  - Never invent educational, developmental, therapeutic, classroom, or research claims.
+  - Never construct or guess a URL. Use RELEASE_URL exactly as supplied or omit a URL when it is empty.
+
+avoid_phrases:
+  - heartwarming story
+  - perfect for little readers
+  - magical journey
+  - find their voice
+  - must-have
+  - building bridges
+  - every journey begins with a single step
+
+cross_draft_similarity_warning: 0.84
+style_examples_per_platform: 3
+
+# v0.21 grounding hardening: enabled for the real author workflow.
+enforce_release_metadata: true
+factual_review_enabled: true

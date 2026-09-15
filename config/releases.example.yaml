@@ -1,0 +1,8 @@
+# Copy this file to config/releases.yaml.
+# config/releases.yaml is intentionally gitignored because it may contain absolute local paths.
+releases:
+  - date: 2026-09-14
+    title: "Bilingual Yok 4"
+    book: "/absolute/path/to/book.pdf"
+    image: "/absolute/path/to/promo.png"
+    url: "https://example.com/book"

@@ -1,0 +1,16 @@
+You are a conservative editorial reviewer. Compare the proposed social post with retrieved historical content.
+PROPOSED:
+{{PROPOSED_POST}}
+
+MOST SIMILAR HISTORY:
+{{SIMILAR_HISTORY}}
+
+Return JSON only:
+{
+  "redundant": true|false,
+  "reason": "short explanation",
+  "repeated_elements": ["..."],
+  "recommended_new_angle": "..."
+}
+A post is redundant if it substantially repeats the same hook, educational topic, framing, anecdote,
+CTA, or wording even if the exact words differ. Normal recurring book/character names are not redundancy.

@@ -1,0 +1,89 @@
+ollama:
+  base_url: http://localhost:11434
+  marketing_model: qwen3:14b
+  coding_model: devstral-small-2:latest
+  review_model: gemma4:12b
+  embedding_model: embeddinggemma:latest
+  timeout_seconds: 240
+
+rag:
+  db_path: data/rag.sqlite3
+  top_k: 8
+  warning_threshold: 0.78
+  duplicate_threshold: 0.86
+
+social:
+  hashtags:
+    instagram: [ChildrensBooks, PictureBooks, ReadAloud, IndieAuthor]
+    facebook: []
+  recent_post_limit: 30
+
+orchestrator:
+  window_days: 1
+  daily_run_time: "09:00"
+
+notifications:
+  desktop: true
+  alert_webhook_env: AUTHOR_AGENT_ALERT_WEBHOOK
+  alert_timeout_seconds: 10
+  stale_review_days: 3
+
+web:
+  url: "http://127.0.0.1:8765"
+  push_token_ttl_seconds: 3600
+
+website:
+  # Prefer the env var AUTHOR_AGENT_WEBSITE_REPO; do not commit machine-local paths.
+  repo_path: ""
+  # Set this if auto-detection cannot find the real JSON/YAML/JS/HTML calendar source.
+  calendar_data_file: ""
+  branch_prefix: "author-agent"
+  allow_commit: true
+  allow_push: false
+
+logging:
+  level: INFO
+
+automation:
+  mode: manual
+  db_path: data/automation.sqlite3
+
+publishing:
+  enabled: false
+  provider: meta
+  dry_run: true
+  max_retries: 3
+  kill_switch_env: PUBLISHING_KILL_SWITCH
+
+meta:
+  access_token_env: META_ACCESS_TOKEN
+  facebook_page_id: ""
+  instagram_account_id: ""
+  graph_version: v23.0
+
+book_analysis:
+  multimodal_enabled: false
+  vision_provider: ""
+  vision_model: ""
+  max_pages: 0
+
+analytics:
+  enabled: true
+  minimum_samples: 10
+  refresh_hours: 24
+  weights:
+    shares: 3.0
+    comments: 2.0
+    saves: 2.5
+    clicks: 3.0
+    reach: 1.0
+    likes: 0.5
+
+campaign:
+  timezone: Europe/Prague
+  facebook_time: "19:00"
+  instagram_time: "18:30"
+  minimum_gap_hours: 18
+
+evaluation:
+  real_model_enabled: false

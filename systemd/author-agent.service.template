@@ -1,0 +1,12 @@
+[Unit]
+Description=Author Agent daily content check
+After=default.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=@PROJECT_DIR@
+ExecStart="@PYTHON@" "@PROJECT_DIR@/run_daemon.py" --run-once
+Environment=PYTHONUNBUFFERED=1
+EnvironmentFile=-@PROJECT_DIR@/.env
+StandardOutput=journal
+StandardError=journal

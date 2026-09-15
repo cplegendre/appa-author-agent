@@ -1,0 +1,10 @@
+[Unit]
+Description=Run Author Agent daily at @DAILY_RUN_TIME@
+
+[Timer]
+OnCalendar=*-*-* @DAILY_RUN_TIME@:00
+Persistent=true
+Unit=author-agent.service
+
+[Install]
+WantedBy=timers.target

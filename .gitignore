@@ -1,0 +1,78 @@
+# Secrets / local configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+secrets/
+credentials/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
+# Packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# IDE / editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Runtime / generated content
+output/
+logs/
+*.log
+
+# Local application data / databases
+data/
+*.db
+*.sqlite
+*.sqlite3
+
+# Backups
+Backup/
+backup/
+backups/
+*.bak
+
+# Temporary files
+tmp/
+temp/
+.cache/
+
+# Local Ollama / model artifacts if ever added
+models/
+*.gguf
+
+# Test / runtime artifacts
+.coverage
+junit.xml
+test-results/
+
+# Local systemd overrides / runtime state
+systemd/*.override.conf

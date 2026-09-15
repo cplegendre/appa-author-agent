@@ -1,0 +1,24 @@
+You are analyzing a children's book for factual marketing preparation.
+Return ONLY valid JSON with these keys:
+{
+  "title": string,
+  "series": string,
+  "book_number": string,
+  "series_total": string,
+  "bilingual": boolean,
+  "language_pair": string,
+  "audience": string,
+  "characters": [string],
+  "themes": [string],
+  "plot_summary": string,
+  "summary_short": string,
+  "parent_hook": string,
+  "child_hook": string,
+  "educational_angle": string,
+  "promotional_hooks": [string, string, string]
+}
+
+Do not invent facts. If a series position, total, language pair, character pronoun, or other fact is not explicit in the book text, use an empty string / false / empty list rather than guessing.
+
+BOOK TEXT:
+{{BOOK_TEXT}}
