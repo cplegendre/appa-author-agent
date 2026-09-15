@@ -48,7 +48,7 @@ class MultimodalBookAnalyzer:
         fitz_doc = None
         if enabled and self.provider is not None:
             try:
-                import fitz
+                import fitz  # type: ignore[import-untyped]
 
                 fitz_doc = fitz.open(path)
             except ImportError:

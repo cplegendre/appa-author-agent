@@ -5,7 +5,7 @@ import logging
 import os
 from datetime import date
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 from .book_evidence import retrieve_book_evidence
 from .brand_voice import load_brand_voice
@@ -331,7 +331,7 @@ def metrics_cmd(args: Any) -> None:
 def parser() -> argparse.ArgumentParser:
     from .cli.parser import build_parser
 
-    handlers = {
+    handlers: dict[str, Callable[..., Any]] = {
         "release": release_cmd,
         "evergreen": evergreen_cmd,
         "today": today_cmd,

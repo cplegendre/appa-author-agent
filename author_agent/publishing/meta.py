@@ -4,7 +4,7 @@ import logging
 import os
 import time
 from dataclasses import dataclass
-from typing import Callable
+from typing import Any, Callable
 
 import httpx
 
@@ -310,7 +310,7 @@ class MetaPublisher:
             raise PublishingError(f"{platform.title()} target account is not configured")
         fields = "id,name" if platform == "facebook" else "id,username"
         target = self._request("GET", f"{self.base_url}/{target_id}", data={"fields": fields})
-        media = {"checked": False}
+        media: dict[str, Any] = {"checked": False}
         if media_url:
             try:
                 response = self.client.head(media_url, follow_redirects=True)

@@ -163,6 +163,11 @@ def evergreen_cmd(
     context = deps.rag_context(store, evergreen_query, top_k=12)
     style_examples = deps.style_examples(store, evergreen_query, deps.brand_voice)
     ollama = deps.settings["ollama"]
+
+    def validate_evergreen_social(payload: dict[str, Any]) -> None:
+        for field in ("facebook", "instagram"):
+            _reject_social_formatting(field, str(payload.get(field, "")))
+
     post = _generate_social_with_retry(
         deps,
         ollama,
@@ -175,9 +180,7 @@ def evergreen_cmd(
             "STYLE_EXAMPLES": style_examples,
         },
         label="evergreen",
-        post_validate=lambda payload: [
-            _reject_social_formatting(field, str(payload.get(field, ""))) for field in ("facebook", "instagram")
-        ],
+        post_validate=validate_evergreen_social,
     )
     post.update(
         {
