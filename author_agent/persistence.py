@@ -10,7 +10,7 @@ SCHEMA_VERSION = 27
 
 
 class AutomationStore:
-    """Small durable SQLite store for v25 workflow, publishing, vision and analytics."""
+    """Small durable SQLite store for workflow, publishing, vision, and analytics."""
 
     def __init__(self, path: Path):
         self.path = path

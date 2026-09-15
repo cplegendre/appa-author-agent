@@ -55,7 +55,7 @@ def run_demo(
         workflow = WorkflowService(store)
         workflow_id = workflow.create(
             book=book.name,
-            campaign="v26-demo",
+            campaign="public-demo",
             platform="facebook",
             state=WorkflowState.INGESTED,
             text=book_text,

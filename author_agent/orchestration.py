@@ -1,6 +1,6 @@
 """Compatibility facade for orchestration responsibilities.
 
-Implementation is split by responsibility in v29; imports remain stable for callers/tests.
+Implementation is split by responsibility; imports remain stable for callers/tests.
 """
 from .orchestration_types import OrchestrationDeps
 from .publishing_orchestration import output_dir, release_output, preview_and_report, release_cmd, evergreen_cmd

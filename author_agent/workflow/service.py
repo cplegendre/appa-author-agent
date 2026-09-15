@@ -15,7 +15,7 @@ class WorkflowState(StrEnum):
     DRAFTED = "DRAFTED"
     VALIDATED = "VALIDATED"
     REVIEW_REQUIRED = "REVIEW_REQUIRED"  # persisted legacy spelling
-    IN_REVIEW = "IN_REVIEW"              # accepted v30 spelling
+    IN_REVIEW = "IN_REVIEW"              # accepted review-state spelling
     APPROVED = "APPROVED"
     SCHEDULED = "SCHEDULED"
     PUBLISHING = "PUBLISHING"

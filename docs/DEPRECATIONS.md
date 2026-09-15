@@ -1,18 +1,17 @@
-# v28 deprecations and scope freeze
+# Deprecated compatibility settings
 
-v28 is a stabilization release. No new end-user publishing capability was added.
+APPA v1.0 keeps two legacy configuration keys so existing local configurations continue to validate. They are not required for new deployments.
 
-## Deprecated compatibility settings
+## `ollama.coding_model`
 
-- `ollama.coding_model`: retained so existing configuration files still validate, but no runtime path consumes it. Do not use it for new deployments; removal is reserved for a future breaking configuration revision.
-- `automation.mode`: retained for backward-compatible configuration parsing. The production safety model is the explicit workflow state machine + human approval + `publishing.enabled`/`publishing.dry_run`; no runtime publication decision currently depends on `automation.mode`.
+Retained for backward-compatible configuration parsing. No current runtime generation, review, RAG, or publishing path consumes this setting.
 
-These settings are intentionally **not removed in v28** because `extra="forbid"` configuration validation would turn their removal into a breaking change for existing production `.yaml`/environment configurations.
+## `automation.mode`
 
-## Removed / archived obsolete material
+Retained for backward-compatible configuration parsing. Publication safety is controlled by the durable workflow state machine, explicit human approval, `publishing.enabled`, `publishing.dry_run`, and the global publishing kill-switch.
 
-- v26 architecture and pre-live validation documents were moved to `docs/archive/`; they are historical and no longer describe the production operating baseline.
-- Publishing/campaign CLI implementation was removed from the monolithic `main.py` and moved to `author_agent/cli/`.
-- Daily release selection/scheduling was removed from the monolithic `orchestration.py` and moved to `author_agent/orchestration_scheduling.py`.
+## Removal policy
 
-No inactive experimental runtime module was deleted because the apparently experimental `demo` and `evaluation` packages are still reachable from supported CLI commands (`quickstart` and `eval`). Removing them would therefore be a feature removal rather than dead-code cleanup.
+Because settings validation rejects unknown keys, removing either key would break existing configuration files. Their removal is therefore reserved for a future explicit breaking configuration revision.
+
+Historical version-specific deprecation notes are preserved under `docs/archive/` where relevant.

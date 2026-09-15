@@ -1,6 +1,6 @@
-# Real-world validation — v26 Meta publishing
+# Real-world validation — Meta publishing
 
-This procedure validates the v26 publishing path against a **dedicated Meta test Page**. It is deliberately opt-in: the script runs only a dry-run unless both `--live` and the literal confirmation `LIVE_META_TEST` are supplied.
+This procedure validates the current publishing path against a **dedicated Meta test Page**. It is deliberately opt-in: the script runs only a dry-run unless both `--live` and the literal confirmation `LIVE_META_TEST` are supplied.
 
 ## Safety prerequisites
 
@@ -25,7 +25,7 @@ From a clean checkout:
 
 ```bash
 pip install -e ".[dev]"
-pytest tests/test_v25_publishing.py tests/test_v26_hardening.py
+pytest -q
 ```
 
 The mocked tests cover successful publishing, retry/idempotency, HTTP 429/rate-limit payloads, Meta error code 190/expired tokens, invalid media URL payloads, and secret redaction.
@@ -57,7 +57,7 @@ python scripts/validate_meta_publish.py --live --confirm LIVE_META_TEST
 
 This creates **one real low-risk Facebook test post**, then invokes the same publish operation again with the same workflow/content idempotency key and asserts that no second post is created.
 
-If Meta returns an error, v26 surfaces domain-specific failures for rate limiting, expired tokens, and invalid media while redacting configured secrets from logs and exception text.
+If Meta returns an error, APPA surfaces domain-specific failures for rate limiting, expired tokens, and invalid media while redacting configured secrets from logs and exception text.
 
 ## Validation record
 
@@ -66,6 +66,5 @@ Date: **2026-09-14**
 - Mocked Meta error-path tests: implemented and run locally.
 - Local dry-run workflow/idempotency cycle: run locally; passed.
 - Real Meta live publish: **NOT RUN in this build environment** because no live Meta credentials/test Page were provided. This step remains a deliberate human action using the command above.
-- Issues found during dry-run hardening: the v25 deterministic evaluation fixture lookup was CWD-relative; v26 resolves it package-relative. Secret redaction was also hardened for formatted logging arguments and exception messages.
 
 A live validation result should be appended here after a human runs it against the dedicated test Page, including the date, Page type, resulting Meta post ID, and any API/version-specific issues observed. Do not record the access token.
