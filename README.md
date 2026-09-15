@@ -1065,3 +1065,9 @@ A second-pass factual-grounding review uses the configured Ollama review model a
 BookProfile only. Unsupported concrete scene embellishments (invented scenery, gestures, appearance,
 pronouns, actions, dialogue, emotions, or plot facts) cause one corrective generation retry before the
 copy can reach the UI. Historical RAG posts remain style/anti-duplication context, never factual sources.
+
+
+## License
+
+Licensed under the Apache License, Version 2.0.
+See [LICENSE](LICENSE) for details.
