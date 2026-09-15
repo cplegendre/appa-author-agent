@@ -39,18 +39,65 @@ _PREPUBLICATION_REJECTABLE = {
 }
 
 ALLOWED = {
-    WorkflowState.INGESTED: {WorkflowState.ANALYZED, WorkflowState.FAILED, WorkflowState.CANCELLED, WorkflowState.REJECTED},
-    WorkflowState.ANALYZED: {WorkflowState.DRAFTED, WorkflowState.FAILED, WorkflowState.CANCELLED, WorkflowState.REJECTED},
-    WorkflowState.DRAFTED: {WorkflowState.VALIDATED, WorkflowState.FAILED, WorkflowState.CANCELLED, WorkflowState.REJECTED},
-    WorkflowState.VALIDATED: {WorkflowState.REVIEW_REQUIRED, WorkflowState.IN_REVIEW, WorkflowState.APPROVED, WorkflowState.FAILED, WorkflowState.REJECTED},
-    WorkflowState.REVIEW_REQUIRED: {WorkflowState.APPROVED, WorkflowState.DRAFTED, WorkflowState.CANCELLED, WorkflowState.REJECTED},
-    WorkflowState.IN_REVIEW: {WorkflowState.APPROVED, WorkflowState.DRAFTED, WorkflowState.CANCELLED, WorkflowState.REJECTED},
-    WorkflowState.APPROVED: {WorkflowState.SCHEDULED, WorkflowState.PUBLISHING, WorkflowState.DRAFTED, WorkflowState.CANCELLED, WorkflowState.REJECTED},
-    WorkflowState.SCHEDULED: {WorkflowState.PUBLISHING, WorkflowState.CANCELLED, WorkflowState.FAILED, WorkflowState.REJECTED},
+    WorkflowState.INGESTED: {
+        WorkflowState.ANALYZED,
+        WorkflowState.FAILED,
+        WorkflowState.CANCELLED,
+        WorkflowState.REJECTED,
+    },
+    WorkflowState.ANALYZED: {
+        WorkflowState.DRAFTED,
+        WorkflowState.FAILED,
+        WorkflowState.CANCELLED,
+        WorkflowState.REJECTED,
+    },
+    WorkflowState.DRAFTED: {
+        WorkflowState.VALIDATED,
+        WorkflowState.FAILED,
+        WorkflowState.CANCELLED,
+        WorkflowState.REJECTED,
+    },
+    WorkflowState.VALIDATED: {
+        WorkflowState.REVIEW_REQUIRED,
+        WorkflowState.IN_REVIEW,
+        WorkflowState.APPROVED,
+        WorkflowState.FAILED,
+        WorkflowState.REJECTED,
+    },
+    WorkflowState.REVIEW_REQUIRED: {
+        WorkflowState.APPROVED,
+        WorkflowState.DRAFTED,
+        WorkflowState.CANCELLED,
+        WorkflowState.REJECTED,
+    },
+    WorkflowState.IN_REVIEW: {
+        WorkflowState.APPROVED,
+        WorkflowState.DRAFTED,
+        WorkflowState.CANCELLED,
+        WorkflowState.REJECTED,
+    },
+    WorkflowState.APPROVED: {
+        WorkflowState.SCHEDULED,
+        WorkflowState.PUBLISHING,
+        WorkflowState.DRAFTED,
+        WorkflowState.CANCELLED,
+        WorkflowState.REJECTED,
+    },
+    WorkflowState.SCHEDULED: {
+        WorkflowState.PUBLISHING,
+        WorkflowState.CANCELLED,
+        WorkflowState.FAILED,
+        WorkflowState.REJECTED,
+    },
     WorkflowState.PUBLISHING: {WorkflowState.PUBLISHED, WorkflowState.FAILED},
     WorkflowState.PUBLISHED: {WorkflowState.MEASURED, WorkflowState.FAILED},
     WorkflowState.MEASURED: {WorkflowState.MEASURED},
-    WorkflowState.FAILED: {WorkflowState.ANALYZED, WorkflowState.DRAFTED, WorkflowState.PUBLISHING, WorkflowState.CANCELLED},
+    WorkflowState.FAILED: {
+        WorkflowState.ANALYZED,
+        WorkflowState.DRAFTED,
+        WorkflowState.PUBLISHING,
+        WorkflowState.CANCELLED,
+    },
     WorkflowState.CANCELLED: set(),
     WorkflowState.REJECTED: set(),
 }
@@ -90,7 +137,16 @@ class WorkflowService:
     def __init__(self, store: AutomationStore):
         self.store = store
 
-    def create(self, *, book: str = "", campaign: str = "", platform: str = "", state: WorkflowState = WorkflowState.INGESTED, text: str = "", metadata: dict | None = None) -> str:
+    def create(
+        self,
+        *,
+        book: str = "",
+        campaign: str = "",
+        platform: str = "",
+        state: WorkflowState = WorkflowState.INGESTED,
+        text: str = "",
+        metadata: dict | None = None,
+    ) -> str:
         workflow_id = str(uuid.uuid4())
         now = utc_now()
         meta = dict(metadata or {})
@@ -99,7 +155,17 @@ class WorkflowService:
         with self.store.connect() as con:
             con.execute(
                 "INSERT INTO workflows(id,book,campaign,platform,state,created_at,updated_at,content_hash,metadata_json) VALUES(?,?,?,?,?,?,?,?,?)",
-                (workflow_id, book, campaign, platform, state.value, now, now, content_hash(text) if text else "", self.store.dumps(meta)),
+                (
+                    workflow_id,
+                    book,
+                    campaign,
+                    platform,
+                    state.value,
+                    now,
+                    now,
+                    content_hash(text) if text else "",
+                    self.store.dumps(meta),
+                ),
             )
             con.execute(
                 "INSERT INTO workflow_transitions(workflow_id,from_state,to_state,at,reason) VALUES(?,?,?,?,?)",
@@ -109,20 +175,33 @@ class WorkflowService:
 
     def get(self, workflow_id: str) -> dict:
         with self.store.connect() as con:
-            row = con.execute("SELECT * FROM workflows WHERE id=?", (workflow_id,)).fetchone()
+            row = con.execute(
+                "SELECT * FROM workflows WHERE id=?", (workflow_id,)
+            ).fetchone()
         if row is None:
             raise KeyError(workflow_id)
         return dict(row)
 
-    def transition(self, workflow_id: str, to_state: WorkflowState, *, reason: str = "", error: str | None = None) -> dict:
+    def transition(
+        self,
+        workflow_id: str,
+        to_state: WorkflowState,
+        *,
+        reason: str = "",
+        error: str | None = None,
+    ) -> dict:
         row = self.get(workflow_id)
         current = WorkflowState(row["state"])
         if to_state == WorkflowState.REJECTED and not str(reason).strip():
             raise ValueError("Rejecting a workflow requires a non-empty reason")
         if to_state not in ALLOWED[current]:
-            raise ValueError(f"Invalid workflow transition: {current.value} -> {to_state.value}")
+            raise ValueError(
+                f"Invalid workflow transition: {current.value} -> {to_state.value}"
+            )
         now = utc_now()
-        retry_count = int(row["retry_count"]) + (1 if to_state == WorkflowState.FAILED else 0)
+        retry_count = int(row["retry_count"]) + (
+            1 if to_state == WorkflowState.FAILED else 0
+        )
         with self.store.connect() as con:
             con.execute(
                 "UPDATE workflows SET state=?,updated_at=?,last_error=?,retry_count=? WHERE id=?",
@@ -138,7 +217,9 @@ class WorkflowService:
         row = self.get(workflow_id)
         state = WorkflowState(row["state"])
         if state not in _PREPUBLICATION_REJECTABLE:
-            raise ValueError(f"Workflow {workflow_id} cannot be rejected from {state.value}")
+            raise ValueError(
+                f"Workflow {workflow_id} cannot be rejected from {state.value}"
+            )
         return self.transition(workflow_id, WorkflowState.REJECTED, reason=reason)
 
     def approve(self, workflow_id: str, text: str) -> dict:
@@ -154,7 +235,13 @@ class WorkflowService:
             )
             con.execute(
                 "INSERT INTO workflow_transitions(workflow_id,from_state,to_state,at,reason) VALUES(?,?,?,?,?)",
-                (workflow_id, row["state"], WorkflowState.APPROVED.value, now, "explicit approval"),
+                (
+                    workflow_id,
+                    row["state"],
+                    WorkflowState.APPROVED.value,
+                    now,
+                    "explicit approval",
+                ),
             )
         return self.get(workflow_id)
 
@@ -176,11 +263,19 @@ class WorkflowService:
             if target != state:
                 con.execute(
                     "INSERT INTO workflow_transitions(workflow_id,from_state,to_state,at,reason) VALUES(?,?,?,?,?)",
-                    (workflow_id, state.value, target.value, now, "content changed after approval"),
+                    (
+                        workflow_id,
+                        state.value,
+                        target.value,
+                        now,
+                        "content changed after approval",
+                    ),
                 )
         return self.get(workflow_id)
 
-    def edit_draft(self, workflow_id: str, *, field: str, value: str, edited_by: str) -> dict:
+    def edit_draft(
+        self, workflow_id: str, *, field: str, value: str, edited_by: str
+    ) -> dict:
         row = self.get(workflow_id)
         state = WorkflowState(row["state"])
         if state not in _REVIEW_STATES:
@@ -203,7 +298,13 @@ class WorkflowService:
         with self.store.connect() as con:
             con.execute(
                 "UPDATE workflows SET state=?,approved_hash=NULL,content_hash=?,metadata_json=?,updated_at=? WHERE id=?",
-                (WorkflowState.DRAFTED.value, content_hash(value), self.store.dumps(metadata), now, workflow_id),
+                (
+                    WorkflowState.DRAFTED.value,
+                    content_hash(value),
+                    self.store.dumps(metadata),
+                    now,
+                    workflow_id,
+                ),
             )
             con.execute(
                 "INSERT INTO workflow_edits(workflow_id,field,old_text,new_text,edited_by,at,factual_recheck_required) VALUES(?,?,?,?,?,?,1)",
@@ -211,16 +312,33 @@ class WorkflowService:
             )
             con.execute(
                 "INSERT INTO workflow_transitions(workflow_id,from_state,to_state,at,reason) VALUES(?,?,?,?,?)",
-                (workflow_id, state.value, WorkflowState.DRAFTED.value, now, f"draft field edited: {field}; factual recheck required"),
+                (
+                    workflow_id,
+                    state.value,
+                    WorkflowState.DRAFTED.value,
+                    now,
+                    f"draft field edited: {field}; factual recheck required",
+                ),
             )
         return self.get(workflow_id)
 
     def edits(self, workflow_id: str) -> list[dict]:
         with self.store.connect() as con:
-            rows = con.execute("SELECT * FROM workflow_edits WHERE workflow_id=? ORDER BY id", (workflow_id,)).fetchall()
+            rows = con.execute(
+                "SELECT * FROM workflow_edits WHERE workflow_id=? ORDER BY id",
+                (workflow_id,),
+            ).fetchall()
         return [dict(row) for row in rows]
 
-    def review_queue(self, *, book: str = "", platform: str = "", min_age_days: int | None = None, max_age_days: int | None = None, sort_by: str = "age") -> list[dict]:
+    def review_queue(
+        self,
+        *,
+        book: str = "",
+        platform: str = "",
+        min_age_days: int | None = None,
+        max_age_days: int | None = None,
+        sort_by: str = "age",
+    ) -> list[dict]:
         now = datetime.now(timezone.utc)
         with self.store.connect() as con:
             rows = con.execute(
@@ -234,7 +352,9 @@ class WorkflowService:
                 continue
             if platform and row["platform"] != platform:
                 continue
-            started_raw = row.get("review_started_at") or row["updated_at"] or row["created_at"]
+            started_raw = row.get("review_started_at") or row["updated_at"] or row[
+                "created_at"
+            ]
             started = datetime.fromisoformat(started_raw)
             if started.tzinfo is None:
                 started = started.replace(tzinfo=timezone.utc)
@@ -244,11 +364,16 @@ class WorkflowService:
             if max_age_days is not None and age_days > max_age_days:
                 continue
             metadata = _metadata(row)
-            items.append({
-                "id": row["id"], "book": row["book"], "platform": row["platform"],
-                "post_role": _role_from_metadata(metadata), "age_days": age_days,
-                "review_started_at": started_raw,
-            })
+            items.append(
+                {
+                    "id": row["id"],
+                    "book": row["book"],
+                    "platform": row["platform"],
+                    "post_role": _role_from_metadata(metadata),
+                    "age_days": age_days,
+                    "review_started_at": started_raw,
+                }
+            )
         keys = {
             "age": lambda item: (-item["age_days"], item["id"]),
             "book": lambda item: (item["book"].lower(), -item["age_days"]),
@@ -265,17 +390,39 @@ class WorkflowService:
 
     def history(self, workflow_id: str) -> list[dict]:
         with self.store.connect() as con:
-            rows = con.execute("SELECT * FROM workflow_transitions WHERE workflow_id=? ORDER BY id", (workflow_id,)).fetchall()
+            rows = con.execute(
+                "SELECT * FROM workflow_transitions WHERE workflow_id=? ORDER BY id",
+                (workflow_id,),
+            ).fetchall()
         return [dict(row) for row in rows]
 
-    def register_publish_attempt(self, workflow_id: str, *, provider: str, platform: str, idempotency_key: str, payload: dict) -> bool:
-        payload_hash = hashlib.sha256(json.dumps(payload, sort_keys=True).encode()).hexdigest()
+    def register_publish_attempt(
+        self,
+        workflow_id: str,
+        *,
+        provider: str,
+        platform: str,
+        idempotency_key: str,
+        payload: dict,
+    ) -> bool:
+        payload_hash = hashlib.sha256(
+            json.dumps(payload, sort_keys=True).encode()
+        ).hexdigest()
         now = utc_now()
         try:
             with self.store.connect() as con:
                 con.execute(
                     "INSERT INTO publish_attempts(workflow_id,idempotency_key,provider,platform,status,payload_hash,payload_json,attempted_at) VALUES(?,?,?,?,?,?,?,?)",
-                    (workflow_id, idempotency_key, provider, platform, "started", payload_hash, self.store.dumps(payload), now),
+                    (
+                        workflow_id,
+                        idempotency_key,
+                        provider,
+                        platform,
+                        "started",
+                        payload_hash,
+                        self.store.dumps(payload),
+                        now,
+                    ),
                 )
             return True
         except Exception as exc:
