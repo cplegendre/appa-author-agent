@@ -32,8 +32,7 @@ def evaluate_fixture(fixture: dict) -> dict[str, float]:
     duplicate_rate = 0.0
     if texts and prior:
         duplicate_rate = sum(
-            max((_similarity(text, previous) for previous in prior), default=0.0) >= 0.86
-            for text in texts
+            max((_similarity(text, previous) for previous in prior), default=0.0) >= 0.86 for text in texts
         ) / len(texts)
     instagram = str(drafts.get("instagram", ""))
     facebook = str(drafts.get("facebook", ""))
@@ -57,10 +56,7 @@ def run_evaluation(fixtures_dir: Path | None = None) -> EvaluationReport:
     scores = [evaluate_fixture(json.loads(path.read_text(encoding="utf-8"))) for path in files]
     if not scores:
         raise ValueError(f"No evaluation fixtures found in {requested}")
-    average = {
-        key: sum(item[key] for item in scores) / len(scores)
-        for key in scores[0]
-    }
+    average = {key: sum(item[key] for item in scores) / len(scores) for key in scores[0]}
     overall = 100.0 * (
         0.55 * average["factual_precision"]
         + 0.15 * (1 - average["duplicate_rate"])

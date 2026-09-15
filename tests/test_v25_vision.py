@@ -7,7 +7,9 @@ from author_agent.vision import MultimodalBookAnalyzer
 
 
 class FakeVision:
-    def __init__(self): self.calls = 0
+    def __init__(self):
+        self.calls = 0
+
     def analyze(self, image_bytes, *, page, text):
         self.calls += 1
         assert image_bytes.startswith(b"\x89PNG")
@@ -17,7 +19,7 @@ class FakeVision:
 def make_pdf(path: Path):
     doc = fitz.open()
     page = doc.new_page()
-    page.insert_text((72,72), "Yok finds a balloon.")
+    page.insert_text((72, 72), "Yok finds a balloon.")
     doc.save(path)
     doc.close()
 
@@ -41,11 +43,17 @@ def test_text_only_fallback(tmp_path):
     assert "Yok finds a balloon" in evidence[0].text_evidence[0]
     assert evidence[0].visual_evidence == []
 
+
 def test_ollama_vision_provider_parses_grounded_observations(monkeypatch):
     from author_agent.vision import OllamaVisionProvider
+
     class Response:
-        def raise_for_status(self): pass
-        def json(self): return {"response": '{"observations":[{"claim":"A red balloon is visible","confidence":0.9}]}' }
+        def raise_for_status(self):
+            pass
+
+        def json(self):
+            return {"response": '{"observations":[{"claim":"A red balloon is visible","confidence":0.9}]}'}
+
     monkeypatch.setattr("requests.post", lambda *a, **k: Response())
     out = OllamaVisionProvider("http://localhost:11434", "vision-model").analyze(b"png", page=1, text="")
     assert out == [{"claim": "A red balloon is visible", "confidence": 0.9, "source": "vision"}]

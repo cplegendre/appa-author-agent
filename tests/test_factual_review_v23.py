@@ -53,7 +53,7 @@ def test_factual_review_discards_supported_claims_if_model_ignores_schema():
         '{"text": "Book 7", "status": "direct_fact", "evidence": "Book 7", "reason": "Supported"},'
         '{"text": "Lila is the protagonist", "status": "contradicted", "evidence": "Luma", '
         '"reason": "The protagonist is Luma."}'
-        ']}'
+        "]}"
     )
     with patch("author_agent.ollama_client.post_json", return_value=verbose):
         result = generate_factual_review_json("http://localhost:11434", "gemma4:12b", "review")

@@ -5,7 +5,6 @@ from pathlib import Path
 import pytest
 
 from author_agent.book_evidence import retrieve_book_evidence
-from author_agent.errors import ValidationError
 from author_agent.orchestration import (
     FactualGroundingError,
     OrchestrationDeps,

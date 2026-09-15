@@ -84,6 +84,7 @@ class AnalyticsService:
                     }
                 )
         return sorted(result, key=lambda item: item["median_score"], reverse=True)
+
     def recommend_variant(self, feature: str, candidates: list[str]) -> dict:
         """Choose a bounded experiment variant using measured history with exploration.
 
@@ -126,4 +127,3 @@ class AnalyticsService:
             "samples": samples,
             "median_score": median_score,
         }
-

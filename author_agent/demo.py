@@ -106,8 +106,8 @@ def run_demo(
         final = workflow.get(workflow_id)
         output("[7/7] SUMMARY")
         output(f"      State: {final['state']}")
-        output(f"      Grounding: PASS")
-        output(f"      Approval: explicit demo auto-approval")
+        output("      Grounding: PASS")
+        output("      Approval: explicit demo auto-approval")
         output(f"      Publish: {result.status} / {result.external_id}")
         output("      External network posts created: 0")
         return {

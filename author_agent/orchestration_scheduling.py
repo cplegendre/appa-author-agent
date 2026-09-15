@@ -62,10 +62,7 @@ def today_cmd(args: Any, deps: Any) -> dict:
     manifest = base_output / f"today-{today.isoformat()}.json"
     if manifest.exists() and not args.force:
         data = load_json(manifest, {})
-        deps.user_output(
-            f"Already generated for today: {data.get('output', manifest)} "
-            "(use --force to regenerate)."
-        )
+        deps.user_output(f"Already generated for today: {data.get('output', manifest)} (use --force to regenerate).")
         return data
     parsed = release_candidates(today, load_releases(deps.root), args.window)
     if parsed:

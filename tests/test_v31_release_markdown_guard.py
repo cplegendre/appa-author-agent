@@ -5,15 +5,12 @@ never called `_reject_social_formatting` — that guard was only wired into
 actually produced the launch posts.
 """
 
-from pathlib import Path
-from types import SimpleNamespace
 from unittest.mock import patch
 
 import pytest
 
 from author_agent import main
 from author_agent.errors import ValidationError
-from tests.test_main import FakeStore
 from tests.test_social_retry import _base_release_args, _book, _patch_common
 
 

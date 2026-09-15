@@ -77,16 +77,22 @@ def test_review_edit_is_audited_and_forces_factual_recheck(tmp_path):
 def test_review_queue_filters_sorts_and_exposes_role(tmp_path):
     store, service = _service(tmp_path)
     old = service.create(
-        book="Yok Helps a Friend", platform="facebook", state=WorkflowState.REVIEW_REQUIRED,
+        book="Yok Helps a Friend",
+        platform="facebook",
+        state=WorkflowState.REVIEW_REQUIRED,
         metadata={"post_role": "launch"},
     )
     fresh = service.create(
-        book="Another Book", platform="instagram", state=WorkflowState.IN_REVIEW,
+        book="Another Book",
+        platform="instagram",
+        state=WorkflowState.IN_REVIEW,
         metadata={"kind": "inside_the_book"},
     )
     old_at = (datetime.now(timezone.utc) - timedelta(days=5)).isoformat()
     with store.connect() as con:
-        con.execute("UPDATE workflow_transitions SET at=? WHERE workflow_id=? AND to_state='REVIEW_REQUIRED'", (old_at, old))
+        con.execute(
+            "UPDATE workflow_transitions SET at=? WHERE workflow_id=? AND to_state='REVIEW_REQUIRED'", (old_at, old)
+        )
     rows = service.review_queue(sort_by="age")
     assert [row["id"] for row in rows][:2] == [old, fresh]
     assert rows[0]["post_role"] == "launch"
@@ -98,7 +104,10 @@ def test_review_queue_filters_sorts_and_exposes_role(tmp_path):
 
 def test_dashboard_includes_human_review_queue(tmp_path):
     out = build_dashboard(
-        RagStore(), [], tmp_path / "dashboard.html", datetime.now().date(),
+        RagStore(),
+        [],
+        tmp_path / "dashboard.html",
+        datetime.now().date(),
         review_queue=[{"id": "w1", "book": "Yok", "platform": "facebook", "post_role": "teaser", "age_days": 4}],
     )
     text = out.read_text()
@@ -113,8 +122,14 @@ def test_generation_exposes_explicit_post_roles(tmp_path, monkeypatch):
     book.write_text("A tiny story")
     fake = type("Store", (), {"search": lambda *a, **k: [], "upsert": lambda *a, **k: 1, "stats": lambda *a: {}})()
     monkeypatch.setattr(main, "rag_store", lambda: fake)
-    monkeypatch.setattr(main, "analyze_book", lambda p: {"title": "Tiny Book", "themes": ["kindness"], "plot_summary": "x"})
-    monkeypatch.setattr(main, "generate_json", lambda *a, **k: {"facebook": "FB", "instagram": "IG #tag", "teaser": "T", "primary_angle": "kindness"})
+    monkeypatch.setattr(
+        main, "analyze_book", lambda p: {"title": "Tiny Book", "themes": ["kindness"], "plot_summary": "x"}
+    )
+    monkeypatch.setattr(
+        main,
+        "generate_json",
+        lambda *a, **k: {"facebook": "FB", "instagram": "IG #tag", "teaser": "T", "primary_angle": "kindness"},
+    )
     monkeypatch.setattr(main, "prepare_website_update", lambda *a, **k: {"status": "dry-run"})
     args = SimpleNamespace(book=str(book), image="", date="2026-09-15", url="https://x", published=True, dry_run=True)
     result, _ = main.release_cmd(args, emit=False)
@@ -128,7 +143,9 @@ def test_stale_review_uses_existing_alert_channel(tmp_path, monkeypatch):
     wid = service.create(book="Yok", platform="instagram", state=WorkflowState.REVIEW_REQUIRED)
     old_at = (datetime.now(timezone.utc) - timedelta(days=6)).isoformat()
     with store.connect() as con:
-        con.execute("UPDATE workflow_transitions SET at=? WHERE workflow_id=? AND to_state='REVIEW_REQUIRED'", (old_at, wid))
+        con.execute(
+            "UPDATE workflow_transitions SET at=? WHERE workflow_id=? AND to_state='REVIEW_REQUIRED'", (old_at, wid)
+        )
 
     monkeypatch.setattr(daemon, "ROOT", tmp_path)
     settings = dict(daemon.SETTINGS)
@@ -164,15 +181,20 @@ def test_workflow_cli_operations_reject_edit_and_queue(tmp_path):
     store = AutomationStore(tmp_path / "cli.sqlite3")
     service = WorkflowService(store)
     outputs = []
-    factory = lambda: store
+
+    def factory():
+        return store
 
     edit_id = service.create(
-        book="Yok", platform="facebook", state=WorkflowState.REVIEW_REQUIRED,
+        book="Yok",
+        platform="facebook",
+        state=WorkflowState.REVIEW_REQUIRED,
         metadata={"drafts": {"facebook_text": "old"}, "post_role": "launch"},
     )
     operations.workflow_edit(
         SimpleNamespace(id=edit_id, field="facebook_text", value="new", actor="editor"),
-        store_factory=factory, output=outputs.append,
+        store_factory=factory,
+        output=outputs.append,
     )
     assert '"edited_by": "editor"' in outputs[-1]
 
@@ -183,12 +205,15 @@ def test_workflow_cli_operations_reject_edit_and_queue(tmp_path):
     assert '"state": "REJECTED"' in outputs[-1]
 
     queue_id = service.create(
-        book="Yok Queue", platform="facebook", state=WorkflowState.REVIEW_REQUIRED,
+        book="Yok Queue",
+        platform="facebook",
+        state=WorkflowState.REVIEW_REQUIRED,
         metadata={"post_role": "teaser"},
     )
     operations.workflow_queue(
         SimpleNamespace(book="Yok", platform="", min_age_days=None, max_age_days=None, sort="age"),
-        store_factory=factory, output=outputs.append,
+        store_factory=factory,
+        output=outputs.append,
     )
     assert outputs[-2].startswith("ID\tBOOK") or any(line.startswith("ID\tBOOK") for line in outputs)
     assert any(queue_id in line and "teaser" in line for line in outputs)
@@ -199,7 +224,7 @@ def test_queue_validation_and_edit_guard(tmp_path):
     wid = service.create(state=WorkflowState.INGESTED)
     with pytest.raises(ValueError, match="only be edited"):
         service.edit_draft(wid, field="facebook_text", value="x", edited_by="u")
-    review = service.create(state=WorkflowState.REVIEW_REQUIRED)
+    service.create(state=WorkflowState.REVIEW_REQUIRED)
     with pytest.raises(ValueError, match="sort"):
         service.review_queue(sort_by="unknown")
     with pytest.raises(ValueError, match="at least 1 day"):

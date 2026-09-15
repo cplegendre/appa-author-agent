@@ -6,6 +6,7 @@ something LLMs are unreliable at, not something worth spending a retry on.
 Fix: deterministically trim excess hashtags in code before validation runs, so
 only genuine *undershoot* (too few hashtags) still needs a model retry.
 """
+
 import pytest
 
 from author_agent.orchestration import (
@@ -54,9 +55,7 @@ def test_release_social_contract_auto_trims_instagram_overflow_instead_of_failin
         "enforce_release_metadata": True,
         "instagram": {"hashtag_min": 12, "hashtag_max": 16},
     }
-    _validate_release_social_contract(
-        payload, status="scheduled", release_url="", brand_voice=brand_voice
-    )
+    _validate_release_social_contract(payload, status="scheduled", release_url="", brand_voice=brand_voice)
     assert payload["instagram"].count("#") == 16
 
 
@@ -73,6 +72,4 @@ def test_release_social_contract_still_rejects_genuine_undershoot():
         "instagram": {"hashtag_min": 12, "hashtag_max": 16},
     }
     with pytest.raises(Exception, match="hashtags; expected"):
-        _validate_release_social_contract(
-            payload, status="scheduled", release_url="", brand_voice=brand_voice
-        )
+        _validate_release_social_contract(payload, status="scheduled", release_url="", brand_voice=brand_voice)

@@ -3,6 +3,7 @@ the literal template placeholder `[RELEASE_URL]` twice instead of substituting t
 real supplied URL (or omitting it). The URL-presence validator only checked for
 `https?://` links, so this specific failure mode slipped through undetected.
 """
+
 import pytest
 
 from author_agent.errors import ValidationError
@@ -45,9 +46,7 @@ def test_leaked_placeholder_check_also_applies_to_instagram_and_teaser():
             "instagram", "Link in bio, or see [RELEASE_URL]", status="published", release_url="x"
         )
     with pytest.raises(ValidationError, match="leaked the raw RELEASE_URL placeholder"):
-        _validate_release_field_contract(
-            "teaser", "Coming soon: {{RELEASE_URL}}", status="scheduled", release_url=""
-        )
+        _validate_release_field_contract("teaser", "Coming soon: {{RELEASE_URL}}", status="scheduled", release_url="")
 
 
 def test_real_url_present_does_not_trigger_false_positive():

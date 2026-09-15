@@ -5,7 +5,6 @@ from typing import Any
 
 from .errors import MarkdownFormattingError, ParagraphFormattingError, ValidationError
 
-
 _SOCIAL_PARAGRAPH_WORD_THRESHOLD = 80
 _MARKDOWN_HEADING_RE = re.compile(r"(?m)^\s{0,3}#{1,6}\s+")
 _MARKDOWN_BULLET_RE = re.compile(r"(?m)^\s*[-*+]\s+")
@@ -21,6 +20,7 @@ def _strip_markdown_formatting(text: str) -> str:
     words themselves, so `*Yok Helps a Friend*` becomes `Yok Helps a Friend`
     rather than being dropped or mangled.
     """
+
     def _strip_emphasis_match(match: re.Match[str]) -> str:
         return match.group(0).strip("*_")
 
@@ -45,8 +45,7 @@ def _insert_paragraph_breaks(text: str, *, sentences_per_paragraph: int = 3) -> 
     if len(sentences) < 2:
         return text
     paragraphs = [
-        " ".join(sentences[i : i + sentences_per_paragraph])
-        for i in range(0, len(sentences), sentences_per_paragraph)
+        " ".join(sentences[i : i + sentences_per_paragraph]) for i in range(0, len(sentences), sentences_per_paragraph)
     ]
     return "\n\n".join(paragraphs)
 
@@ -64,7 +63,9 @@ def _auto_fix_social_text(text: str) -> str:
     return fixed
 
 
-def _reject_social_formatting(field: str, text: str, *, paragraph_word_threshold: int = _SOCIAL_PARAGRAPH_WORD_THRESHOLD) -> None:
+def _reject_social_formatting(
+    field: str, text: str, *, paragraph_word_threshold: int = _SOCIAL_PARAGRAPH_WORD_THRESHOLD
+) -> None:
     """Reject Markdown-ish social copy and long single-block prose.
 
     Facebook and Instagram render these drafts as plain text, so Markdown emphasis/headings
@@ -90,11 +91,11 @@ def _reject_social_formatting(field: str, text: str, *, paragraph_word_threshold
             "string) and retry generation."
         )
 
+
 _URL_RE = re.compile(r"https?://[^\s)\]>]+")
 _HASHTAG_RE = re.compile(r"(?<!\w)#[A-Za-z0-9_]+")
-_PLACEHOLDER_LEAK_RE = re.compile(
-    r"[\[{<]{1,2}\s*RELEASE_URL\s*[\]}>]{1,2}", re.IGNORECASE
-)
+_PLACEHOLDER_LEAK_RE = re.compile(r"[\[{<]{1,2}\s*RELEASE_URL\s*[\]}>]{1,2}", re.IGNORECASE)
+
 
 def _urls_in(text: str) -> set[str]:
     return {match.rstrip(".,;:!?") for match in _URL_RE.findall(text)}
@@ -142,8 +143,7 @@ def _validate_current_release_metadata(field: str, text: str, facts: dict[str, s
 
     if title and _metadata_search_text(title) not in searchable:
         raise ValidationError(
-            f"{field.title()} draft omitted or altered the current book title. "
-            f"Use TITLE exactly as supplied: {title}"
+            f"{field.title()} draft omitted or altered the current book title. Use TITLE exactly as supplied: {title}"
         )
     if series and _metadata_search_text(series) not in searchable:
         raise ValidationError(
@@ -165,15 +165,13 @@ def _validate_current_release_metadata(field: str, text: str, facts: dict[str, s
     mentioned_numbers = re.findall(r"\bBook\s+(\d+)\b", text, flags=re.I)
     if number and any(found != number for found in mentioned_numbers):
         raise ValidationError(
-            f"{field.title()} draft used the wrong book number. "
-            f"Use BOOK_NUMBER exactly as supplied: {number}"
+            f"{field.title()} draft used the wrong book number. Use BOOK_NUMBER exactly as supplied: {number}"
         )
     if number and total:
         positions = re.findall(r"\bBook\s+(\d+)\s+of\s+(\d+)\b", text, flags=re.I)
         if positions and any(found_num != number or found_total != total for found_num, found_total in positions):
             raise ValidationError(
-                f"{field.title()} draft used the wrong series position. "
-                f"Use Book {number} of {total}."
+                f"{field.title()} draft used the wrong series position. Use Book {number} of {total}."
             )
 
 
@@ -286,9 +284,7 @@ def _validate_release_social_contract(
     voice = brand_voice or {}
     instagram = voice.get("instagram", {}) if isinstance(voice.get("instagram"), dict) else {}
     enforce_metadata = bool(voice.get("enforce_release_metadata", False))
-    release_facts = _current_release_facts(
-        profile or {}, status=status, release_date="", release_url=release_url
-    )
+    release_facts = _current_release_facts(profile or {}, status=status, release_date="", release_url=release_url)
     hashtag_max = int(instagram.get("hashtag_max", 0) or 0) if enforce_metadata else 0
     if hashtag_max > 0 and "instagram" in payload:
         payload["instagram"] = _trim_excess_hashtags(str(payload["instagram"]), hashtag_max)
@@ -303,5 +299,3 @@ def _validate_release_social_contract(
             hashtag_min=(int(instagram.get("hashtag_min", 0) or 0) if field == "instagram" and enforce_metadata else 0),
             hashtag_max=(hashtag_max if field == "instagram" else 0),
         )
-
-

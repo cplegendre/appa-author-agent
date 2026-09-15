@@ -27,7 +27,6 @@ class PublishingService:
         self.publisher = publisher
         self.alerter = alerter
 
-
     def _record_failure(self, workflow_id: str, key: str, platform: str, exc: Exception) -> None:
         reason = redact_text(exc)
         now = datetime.now(timezone.utc).isoformat()
@@ -39,31 +38,45 @@ class PublishingService:
         try:
             row = self.workflow.get(workflow_id)
             if WorkflowState(row["state"]) in {WorkflowState.PUBLISHING, WorkflowState.SCHEDULED}:
-                self.workflow.transition(
-                    workflow_id, WorkflowState.FAILED, reason="publication failed", error=reason
-                )
+                self.workflow.transition(workflow_id, WorkflowState.FAILED, reason="publication failed", error=reason)
         except Exception:
             LOG.exception("Could not persist workflow failure state")
         log_json_event(
-            LOG, logging.ERROR, "publication_attempt", workflow_id=workflow_id, platform=platform,
-            outcome="failure", reason=reason, error_type=type(exc).__name__, at=now,
+            LOG,
+            logging.ERROR,
+            "publication_attempt",
+            workflow_id=workflow_id,
+            platform=platform,
+            outcome="failure",
+            reason=reason,
+            error_type=type(exc).__name__,
+            at=now,
         )
         if self.alerter is not None:
             try:
-                self.alerter({
-                    "workflow_id": workflow_id,
-                    "platform": platform,
-                    "reason": reason,
-                    "error_type": type(exc).__name__,
-                })
+                self.alerter(
+                    {
+                        "workflow_id": workflow_id,
+                        "platform": platform,
+                        "reason": reason,
+                        "error_type": type(exc).__name__,
+                    }
+                )
             except Exception:
                 LOG.exception("Publication failure alert callback crashed")
 
     def _log_success(self, workflow_id: str, platform: str, result: PublishResult) -> None:
         log_json_event(
-            LOG, logging.INFO, "publication_attempt", workflow_id=workflow_id, platform=platform,
-            outcome="success", status=result.status, external_id=result.external_id,
+            LOG,
+            logging.INFO,
+            "publication_attempt",
+            workflow_id=workflow_id,
+            platform=platform,
+            outcome="success",
+            status=result.status,
+            external_id=result.external_id,
         )
+
     @staticmethod
     def idempotency_key(workflow_id: str, platform: str, text: str) -> str:
         digest = hashlib.sha256(f"{workflow_id}\n{platform}\n{text}".encode()).hexdigest()[:24]
@@ -136,8 +149,7 @@ class PublishingService:
         now = datetime.now(timezone.utc).isoformat()
         with self.store.connect() as con:
             con.execute(
-                "UPDATE publish_attempts SET status=?,external_id=?,response_json=? "
-                "WHERE idempotency_key=?",
+                "UPDATE publish_attempts SET status=?,external_id=?,response_json=? WHERE idempotency_key=?",
                 (result.status, result.external_id, self.store.dumps(result.raw or {}), key),
             )
             if result.status == "scheduled":
@@ -153,8 +165,7 @@ class PublishingService:
                 )
             else:
                 con.execute(
-                    "UPDATE workflows SET state=?,published_at=?,external_id=?,social_url=?,updated_at=? "
-                    "WHERE id=?",
+                    "UPDATE workflows SET state=?,published_at=?,external_id=?,social_url=?,updated_at=? WHERE id=?",
                     (
                         WorkflowState.PUBLISHED.value,
                         now,
@@ -199,8 +210,7 @@ class PublishingService:
             published_at = datetime.now(timezone.utc).isoformat()
             with self.store.connect() as con:
                 con.execute(
-                    "UPDATE publish_attempts SET status=?,external_id=?,response_json=? "
-                    "WHERE idempotency_key=?",
+                    "UPDATE publish_attempts SET status=?,external_id=?,response_json=? WHERE idempotency_key=?",
                     (
                         result.status,
                         result.external_id,
@@ -209,8 +219,7 @@ class PublishingService:
                     ),
                 )
                 con.execute(
-                    "UPDATE workflows SET state=?,published_at=?,external_id=?,social_url=?,updated_at=? "
-                    "WHERE id=?",
+                    "UPDATE workflows SET state=?,published_at=?,external_id=?,social_url=?,updated_at=? WHERE id=?",
                     (
                         WorkflowState.PUBLISHED.value,
                         published_at,

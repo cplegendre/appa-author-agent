@@ -60,10 +60,7 @@ def test_strict_metadata_rejects_historical_title_leak():
         "release_date": "2026-09-13",
         "release_url": "https://www.amazon.com/dp/B0H72C7X1N",
     }
-    bad = (
-        "Yok Takes a Step — A Yok Story, Book 7\n"
-        "Now available: https://www.amazon.com/dp/B0H72C7X1N"
-    )
+    bad = "Yok Takes a Step — A Yok Story, Book 7\nNow available: https://www.amazon.com/dp/B0H72C7X1N"
     try:
         _validate_release_field_contract(
             "facebook",

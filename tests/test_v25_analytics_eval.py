@@ -1,5 +1,3 @@
-import json
-
 from author_agent.analytics import AnalyticsService, performance_score
 from author_agent.evaluation import evaluate_fixture, run_evaluation
 from author_agent.persistence import AutomationStore

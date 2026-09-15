@@ -4,6 +4,7 @@
 Default execution is dry-run only. Live posting requires both --live and the
 literal confirmation token LIVE_META_TEST.
 """
+
 from __future__ import annotations
 
 import argparse

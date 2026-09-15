@@ -115,9 +115,7 @@ def test_campaign_enforces_minimum_gap_and_materialization_is_idempotent(tmp_pat
         {"day": 0, "kind": "launch", "goal": "announce", "cta": "buy"},
         {"day": 0, "kind": "followup", "goal": "curiosity", "cta": "comment"},
     )
-    plan = planner.create_plan(
-        book="book.pdf", release_date="2026-09-15", platforms=("facebook",), sequence=sequence
-    )
+    plan = planner.create_plan(book="book.pdf", release_date="2026-09-15", platforms=("facebook",), sequence=sequence)
     first = planner.materialize_workflows(plan["campaign_id"])
     second = planner.materialize_workflows(plan["campaign_id"])
     assert second == first

@@ -8,7 +8,6 @@ from zoneinfo import ZoneInfo
 from author_agent.analytics import AnalyticsService
 from author_agent.persistence import AutomationStore
 
-
 DEFAULT_SEQUENCE = (
     {"day": 0, "kind": "launch", "goal": "announce", "cta": "buy_or_read"},
     {"day": 2, "kind": "inside_the_book", "goal": "curiosity", "cta": "discover"},

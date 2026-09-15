@@ -4,12 +4,17 @@ from pathlib import Path
 from typing import Any
 
 from .io_utils import load_json, save_json, validate_book, validate_date, validate_optional_image
+from .orchestration_factual import _cross_draft_similarity, _validate_factual_grounding
+from .orchestration_generation import _generate_social_with_retry
+from .orchestration_types import OrchestrationDeps
+from .orchestration_validation import (
+    _current_release_facts,
+    _reject_social_formatting,
+    _validate_release_social_contract,
+)
 from .preview import write_post_preview
 from .report import write_release_report
-from .orchestration_types import OrchestrationDeps
-from .orchestration_generation import _generate_social_with_retry
-from .orchestration_validation import _current_release_facts, _reject_social_formatting, _validate_release_social_contract
-from .orchestration_factual import _validate_factual_grounding, _cross_draft_similarity
+
 
 def output_dir(root: Path, dry_run: bool) -> Path:
     return root / "output" / "dry-run" if dry_run else root / "output"
@@ -171,8 +176,7 @@ def evergreen_cmd(
         },
         label="evergreen",
         post_validate=lambda payload: [
-            _reject_social_formatting(field, str(payload.get(field, "")))
-            for field in ("facebook", "instagram")
+            _reject_social_formatting(field, str(payload.get(field, ""))) for field in ("facebook", "instagram")
         ],
     )
     post.update(
@@ -219,5 +223,3 @@ _FIELD_ALIASES: dict[str, tuple[str, ...]] = {
 }
 _TEXT_KEYS = ("text", "caption", "content", "copy", "post", "body", "message")
 _CONTAINER_KEYS = ("social", "drafts", "posts", "result", "output", "response", "data")
-
-

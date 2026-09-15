@@ -8,12 +8,12 @@ from datetime import date
 from pathlib import Path
 from types import SimpleNamespace
 
+from .alerting import slack_webhook_alerter
 from .errors import ConfigError
 from .io_utils import load_json
 from .logging_utils import log_event
 from .main import ROOT, SETTINGS, configure_logging, today_cmd
 from .notifications import send_desktop_notification
-from .alerting import slack_webhook_alerter
 from .persistence import AutomationStore
 from .workflow import WorkflowService
 
@@ -61,7 +61,6 @@ def _notification_message(manifest: dict) -> tuple[str, str]:
     return title, f"{message} — review at {web_url}"
 
 
-
 def alert_stale_reviews() -> list[dict]:
     """Alert through the existing failure-alert channel for reviews older than the configured threshold."""
     cfg = SETTINGS.get("notifications", {})
@@ -76,17 +75,25 @@ def alert_stale_reviews() -> list[dict]:
         timeout_seconds=int(cfg.get("alert_timeout_seconds", 10)),
     )
     for item in stale:
-        notify({
-            "event_type": "stale_review",
-            "workflow_id": item["id"],
-            "platform": item["platform"],
-            "reason": f"review pending for {item['age_days']} days (threshold {threshold})",
-        })
+        notify(
+            {
+                "event_type": "stale_review",
+                "workflow_id": item["id"],
+                "platform": item["platform"],
+                "reason": f"review pending for {item['age_days']} days (threshold {threshold})",
+            }
+        )
         log_event(
-            LOG, logging.WARNING, "stale_review_alert", workflow_id=item["id"],
-            platform=item["platform"], age_days=item["age_days"], threshold_days=threshold,
+            LOG,
+            logging.WARNING,
+            "stale_review_alert",
+            workflow_id=item["id"],
+            platform=item["platform"],
+            age_days=item["age_days"],
+            threshold_days=threshold,
         )
     return stale
+
 
 def run_daily_once(*, run_date: str | None = None) -> dict:
     """Run existing today_cmd once. Idempotency is owned by today_cmd's manifest check."""

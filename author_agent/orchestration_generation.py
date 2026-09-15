@@ -1,13 +1,12 @@
 from __future__ import annotations
 
 import json
-import re
 import logging
 from typing import Any, Callable
 
 from .errors import MarkdownFormattingError, ParagraphFormattingError, SocialFormattingError, ValidationError
-from .orchestration_types import OrchestrationDeps
 from .orchestration_factual import FactualGroundingError
+from .orchestration_types import OrchestrationDeps
 from .orchestration_validation import _auto_fix_social_text
 
 LOG = logging.getLogger(__name__)
@@ -37,7 +36,7 @@ def _correction_block(last_error: ValidationError, last_sample: str, fields: tup
         return (
             f"IMPORTANT: your previous response was still one unbroken block of text. {last_error}\n"
             "Break the copy into 2-3 short paragraphs. Put a literal blank line "
-            '(the two-character sequence \\n\\n) between paragraphs inside the JSON string, e.g. '
+            "(the two-character sequence \\n\\n) between paragraphs inside the JSON string, e.g. "
             '"First short paragraph here.\\n\\nSecond short paragraph here."\n\n'
             "Return ONLY a single flat JSON object with non-empty plain-text string values "
             f"for every one of these keys: {', '.join(fields)}. No nested objects, markdown, or commentary."
@@ -52,6 +51,7 @@ def _correction_block(last_error: ValidationError, last_sample: str, fields: tup
         f"for every one of these keys: {', '.join(fields)}. No nested objects, markdown, or commentary."
     )
 
+
 _FIELD_ALIASES: dict[str, tuple[str, ...]] = {
     "facebook": ("facebook", "facebook_post", "fb", "fb_post"),
     "instagram": ("instagram", "instagram_post", "ig", "ig_post"),
@@ -59,6 +59,7 @@ _FIELD_ALIASES: dict[str, tuple[str, ...]] = {
 }
 _TEXT_KEYS = ("text", "caption", "content", "copy", "post", "body", "message")
 _CONTAINER_KEYS = ("social", "drafts", "posts", "result", "output", "response", "data")
+
 
 def _clean_string(value: Any) -> str | None:
     if isinstance(value, str) and value.strip():
@@ -268,8 +269,6 @@ def _extract_generated_text(payload: dict[str, Any], field: str) -> str:
         f"The model returned an empty draft or unsupported payload for `{field}` "
         f"({_payload_shape(payload)}). Expected the platform name or a text-like wrapper."
     )
-
-
 
 
 def _generate_targeted_text_with_retry(

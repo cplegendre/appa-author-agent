@@ -32,9 +32,7 @@ def meta_publisher(settings: dict[str, Any], ollama: dict[str, Any]) -> MetaPubl
     )
 
 
-def publishing_service(
-    store: AutomationStore, settings: dict[str, Any], ollama: dict[str, Any]
-) -> PublishingService:
+def publishing_service(store: AutomationStore, settings: dict[str, Any], ollama: dict[str, Any]) -> PublishingService:
     ncfg = settings.get("notifications", {})
     alerter = slack_webhook_alerter(
         env_name=str(ncfg.get("alert_webhook_env", "AUTHOR_AGENT_ALERT_WEBHOOK")),
@@ -75,9 +73,7 @@ def publish_due_command(
     output(json.dumps({"published": len(results), "external_ids": [r.external_id for r in results]}, indent=2))
 
 
-def preflight_command(
-    args: Any, *, settings: dict, ollama: dict, output: Callable[[Any], None]
-) -> None:
+def preflight_command(args: Any, *, settings: dict, ollama: dict, output: Callable[[Any], None]) -> None:
     result = meta_publisher(settings, ollama).preflight(args.platform, args.media_url or None)
     output(json.dumps(result, ensure_ascii=False, indent=2))
 

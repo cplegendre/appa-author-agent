@@ -18,7 +18,9 @@ code { background: #eee; padding: 2px 5px; border-radius: 4px; }
 """.strip()
 
 
-def build_dashboard(store: RagStore, releases: list[dict], output: Path, today: date, review_queue: list[dict] | None = None) -> Path:
+def build_dashboard(
+    store: RagStore, releases: list[dict], output: Path, today: date, review_queue: list[dict] | None = None
+) -> Path:
     posts = store.recent_posts()
     windows: dict[int, dict] = {}
     for days in (30, 90, 365):
@@ -76,7 +78,8 @@ def build_dashboard(store: RagStore, releases: list[dict], output: Path, today: 
         f"<td>{html.escape(str(item.get('platform', '')))}</td>"
         f"<td>{html.escape(str(item.get('post_role', '')))}</td>"
         f"<td>{int(item.get('age_days', 0))}</td>"
-        "</tr>" for item in (review_queue or [])
+        "</tr>"
+        for item in (review_queue or [])
     )
     if not queue_rows:
         queue_rows = "<tr><td colspan='5'>No workflows awaiting human review.</td></tr>"
@@ -91,7 +94,9 @@ def build_dashboard(store: RagStore, releases: list[dict], output: Path, today: 
         "</div>"
         f"<section><h2>Over-repetition alerts</h2><ul>{alert_html}</ul></section>"
         "<section><h2>Human review queue</h2>"
-        f"<table><tr><th>ID</th><th>Book</th><th>Platform</th><th>Role</th><th>Age (days)</th></tr>{queue_rows}</table></section>"
+        "<table><tr><th>ID</th><th>Book</th><th>Platform</th>"
+        "<th>Role</th><th>Age (days)</th></tr>"
+        f"{queue_rows}</table></section>"
         "<section><h2>Upcoming releases</h2>"
         f"<table><tr><th>Date</th><th>Release</th></tr>{release_rows}</table></section>"
         "</body></html>"

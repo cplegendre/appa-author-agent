@@ -68,9 +68,7 @@ def test_meta_expired_token_payload_maps_to_domain_error() -> None:
 
 
 def test_meta_invalid_media_payload_maps_to_domain_error() -> None:
-    client = httpx.Client(
-        transport=httpx.MockTransport(lambda _: _response(400, "Invalid image URL", code=100))
-    )
+    client = httpx.Client(transport=httpx.MockTransport(lambda _: _response(400, "Invalid image URL", code=100)))
     publisher = MetaPublisher(
         MetaConfig(access_token="secret", facebook_page_id="page", dry_run=False),
         client=client,

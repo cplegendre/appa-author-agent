@@ -9,6 +9,7 @@ from .orchestration_types import OrchestrationDeps
 
 LOG = logging.getLogger(__name__)
 
+
 def _factual_rejections(review: dict[str, Any]) -> list[dict[str, str]]:
     rejected: list[dict[str, str]] = []
     claims = review.get("claims")
@@ -165,5 +166,3 @@ def _cross_draft_similarity(
         "threshold": warning_threshold,
         "pairs": pairs,
     }
-
-

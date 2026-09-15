@@ -103,9 +103,7 @@ class MetaPublisher:
                 raw_subcode = error.get("error_subcode")
                 code = int(raw_code) if isinstance(raw_code, int | str) and str(raw_code).isdigit() else None
                 subcode = (
-                    int(raw_subcode)
-                    if isinstance(raw_subcode, int | str) and str(raw_subcode).isdigit()
-                    else None
+                    int(raw_subcode) if isinstance(raw_subcode, int | str) and str(raw_subcode).isdigit() else None
                 )
         except (ValueError, TypeError):
             pass
@@ -147,9 +145,15 @@ class MetaPublisher:
                 exhausted = attempt >= self.config.max_retries
                 reason = "timeout" if isinstance(exc, httpx.TimeoutException) else "network_error"
                 log_json_event(
-                    LOG, logging.ERROR if exhausted else logging.WARNING, "meta_api_attempt",
-                    outcome="failure", reason=reason, attempt=attempt_no, attempts=total_attempts,
-                    retry_exhausted=exhausted, publication=publication,
+                    LOG,
+                    logging.ERROR if exhausted else logging.WARNING,
+                    "meta_api_attempt",
+                    outcome="failure",
+                    reason=reason,
+                    attempt=attempt_no,
+                    attempts=total_attempts,
+                    retry_exhausted=exhausted,
+                    publication=publication,
                 )
                 if not exhausted:
                     self.sleep(min(2**attempt, 8))
@@ -160,8 +164,14 @@ class MetaPublisher:
 
             if response.status_code < 400:
                 log_json_event(
-                    LOG, logging.INFO, "meta_api_attempt", outcome="success", attempt=attempt_no,
-                    attempts=total_attempts, http_status=response.status_code, publication=publication,
+                    LOG,
+                    logging.INFO,
+                    "meta_api_attempt",
+                    outcome="success",
+                    attempt=attempt_no,
+                    attempts=total_attempts,
+                    http_status=response.status_code,
+                    publication=publication,
                 )
                 return response.json()
 
@@ -170,15 +180,16 @@ class MetaPublisher:
             retryable = retryable or code in {4, 17, 32, 613}
             exhausted = retryable and attempt >= self.config.max_retries
             log_json_event(
-                LOG, logging.ERROR if exhausted or not retryable else logging.WARNING, "meta_api_attempt",
+                LOG,
+                logging.ERROR if exhausted or not retryable else logging.WARNING,
+                "meta_api_attempt",
                 outcome="failure",
-                reason=(
-                    "rate_limit"
-                    if response.status_code == 429 or code in {4, 17, 32, 613}
-                    else "http_error"
-                ),
-                attempt=attempt_no, attempts=total_attempts, http_status=response.status_code,
-                retry_exhausted=exhausted, publication=publication,
+                reason=("rate_limit" if response.status_code == 429 or code in {4, 17, 32, 613} else "http_error"),
+                attempt=attempt_no,
+                attempts=total_attempts,
+                http_status=response.status_code,
+                retry_exhausted=exhausted,
+                publication=publication,
             )
             if retryable and not exhausted:
                 self.sleep(min(2**attempt, 8))
@@ -288,9 +299,9 @@ class MetaPublisher:
                 "ok": True,
                 "dry_run": True,
                 "platform": platform,
-                "target": "configured" if (
-                    self.config.facebook_page_id if platform == "facebook" else self.config.instagram_account_id
-                ) else "missing",
+                "target": "configured"
+                if (self.config.facebook_page_id if platform == "facebook" else self.config.instagram_account_id)
+                else "missing",
                 "media_checked": False,
             }
         self.validate_credentials()

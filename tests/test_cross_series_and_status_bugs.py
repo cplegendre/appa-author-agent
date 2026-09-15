@@ -10,6 +10,7 @@
    the old check missed because it only matched the literal phrase "coming soon",
    not "coming <date>".
 """
+
 import pytest
 
 from author_agent.errors import ValidationError
@@ -40,8 +41,7 @@ def test_yokstories_hashtag_is_fine_on_an_actual_yok_release():
 def test_correct_series_specific_hashtag_is_never_flagged():
     facts = {"title": "Luma's Big-Heart Forest Tales", "series": "Luma's Blue Dreams Forest"}
     text = (
-        "Luma's Big-Heart Forest Tales, part of Luma's Blue Dreams Forest, Book 7 of 8. "
-        "#LumaStories #BlueDreamsForest"
+        "Luma's Big-Heart Forest Tales, part of Luma's Blue Dreams Forest, Book 7 of 8. #LumaStories #BlueDreamsForest"
     )
     _validate_current_release_metadata("instagram", text, facts)
 

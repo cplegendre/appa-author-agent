@@ -5,15 +5,16 @@ from typing import Any
 
 from .errors import ValidationError
 from .io_utils import load_json, save_json
-from .orchestration_types import OrchestrationDeps
+from .orchestration_factual import _validate_factual_grounding
 from .orchestration_generation import _generate_targeted_text_with_retry
+from .orchestration_types import OrchestrationDeps
 from .orchestration_validation import (
     _current_release_facts,
     _reject_social_formatting,
     _trim_excess_hashtags,
     _validate_release_field_contract,
 )
-from .orchestration_factual import _validate_factual_grounding
+
 
 def regenerate_output_field(path: Path, field: str, deps: OrchestrationDeps) -> dict:
     if field not in {"facebook", "instagram", "teaser"}:
@@ -146,4 +147,3 @@ def update_output_drafts(path: Path, drafts: dict[str, str]) -> dict:
             target[key] = str(value)
     save_json(path, data)
     return data
-

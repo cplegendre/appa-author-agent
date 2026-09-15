@@ -61,9 +61,7 @@ def install_secret_redaction(logger: logging.Logger | None = None) -> SecretReda
 
 def log_event(logger: logging.Logger, level: int, event: str, **context: Any) -> None:
     details = " ".join(
-        f"{redact_text(key)}={redact_text(value)}"
-        for key, value in sorted(context.items())
-        if value not in (None, "")
+        f"{redact_text(key)}={redact_text(value)}" for key, value in sorted(context.items()) if value not in (None, "")
     )
     message = f"{redact_text(event)} {details}".rstrip()
     logger.log(level, message)
